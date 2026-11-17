@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meus pontos — Pontos</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="card">
+    <h1>Olá, <span id="nome" data-testid="painel-nome"></span>!</h1>
+    <p>Seu saldo:</p>
+    <div class="saldo"><span id="saldo" data-testid="painel-saldo">0</span> pontos</div>
+
+    <button id="registrar" data-testid="registrar-atividade">Registrar atividade (+10 pontos)</button>
+    <div id="mensagem" class="mensagem" role="alert" data-testid="painel-mensagem"></div>
+
+    <h2>Extrato</h2>
+    <ul id="extrato" data-testid="extrato-lista"></ul>
+
+    <button id="sair" class="secundario" data-testid="sair">Sair</button>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/index.html';
+
+    const headers = { Authorization: 'Bearer ' + token };
+    const msg = document.getElementById('mensagem');
+
+    function formatarData(iso) {
+      return new Date(iso).toLocaleString('pt-BR');
+    }
+
+    async function carregarExtrato() {
+      const resp = await fetch('/api/extrato', { headers });
+      if (resp.status === 401) {
+        localStorage.removeItem('token');
+        return (window.location.href = '/index.html');
+      }
+      const dados = await resp.json();
+      document.getElementById('nome').textContent = dados.nome;
+      document.getElementById('saldo').textContent = dados.saldo;
+
+      const lista = document.getElementById('extrato');
+      lista.innerHTML = '';
+      if (dados.itens.length === 0) {
+        lista.innerHTML = '<li class="vazio" data-testid="extrato-vazio">Nenhum ponto ganho ainda.</li>';
+        return;
+      }
+      for (const item of dados.itens) {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'extrato-item');
+        li.innerHTML = `
+          <span><span data-testid="extrato-descricao"></span><br>
+            <small data-testid="extrato-data"></small></span>
+          <span class="pontos" data-testid="extrato-pontos"></span>`;
+        li.querySelector('[data-testid="extrato-descricao"]').textContent = item.descricao;
+        li.querySelector('[data-testid="extrato-data"]').textContent = formatarData(item.data);
+        li.querySelector('[data-testid="extrato-pontos"]').textContent = '+' + item.pontos;
+        lista.appendChild(li);
+      }
+    }
+
+    document.getElementById('registrar').addEventListener('click', async () => {
+      const resp = await fetch('/api/atividades', { method: 'POST', headers });
+      const dados = await resp.json();
+      if (resp.ok) {
+        msg.className = 'mensagem sucesso';
+        msg.textContent = `Atividade registrada! +${dados.lancamento.pontos} pontos.`;
+        carregarExtrato();
+      } else {
+        msg.className = 'mensagem erro';
+        msg.textContent = dados.erro;
+      }
+    });
+
+    document.getElementById('sair').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST', headers });
+      localStorage.removeItem('token');
+      window.location.href = '/index.html';
+    });
+
+    carregarExtrato();
+  </script>
+</body>
+</html>

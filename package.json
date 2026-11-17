@@ -1,0 +1,10 @@
+{
+  "name": "pontos-qa",
+  "version": "1.0.0",
+  "description": "Aplicação de pontos (fidelidade) para estudo de QA e Playwright",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT"
+}

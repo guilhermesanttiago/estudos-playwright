@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login — Pontos</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="card">
+    <h1>Entrar</h1>
+    <form id="form-login" novalidate>
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" data-testid="login-email">
+
+      <label for="senha">Senha</label>
+      <input id="senha" name="senha" type="password" data-testid="login-senha">
+
+      <button type="submit" data-testid="login-enviar">Entrar</button>
+    </form>
+    <div id="mensagem" class="mensagem" role="alert" data-testid="login-mensagem"></div>
+    <p class="link">Não tem conta? <a href="/cadastro.html" data-testid="link-cadastro">Cadastre-se</a></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('form-login');
+    const msg = document.getElementById('mensagem');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const resp = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email.value, senha: form.senha.value }),
+      });
+      const dados = await resp.json();
+
+      if (resp.ok) {
+        localStorage.setItem('token', dados.token);
+        window.location.href = '/painel.html';
+      } else {
+        msg.className = 'mensagem erro';
+        msg.textContent = dados.erro;
+      }
+    });
+  </script>
+</body>
+</html>
