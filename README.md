@@ -18,3 +18,6 @@ Abra http://localhost:3000
 - `/painel.html` — registrar atividade (+10 pontos) e extrato
 
 Os dados ficam em memória: reiniciar o servidor apaga usuários e pontos.
+
+## Documentação de QA
+1. [Histórias e critérios de aceite](docs/01-historias-e-criterios.md)
