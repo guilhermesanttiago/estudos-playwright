@@ -21,3 +21,4 @@ Os dados ficam em memória: reiniciar o servidor apaga usuários e pontos.
 
 ## Documentação de QA
 1. [Histórias e critérios de aceite](docs/01-historias-e-criterios.md)
+2. [Cenários de teste (Gherkin) e matriz de rastreabilidade](docs/02-cenarios-de-teste.md)
